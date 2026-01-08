@@ -22,7 +22,6 @@ const els = {
 };
 
 function isoDateInTZ(dateObj, tz) {
-  // en-CA gives YYYY-MM-DD
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: tz,
     year: "numeric",
@@ -31,8 +30,13 @@ function isoDateInTZ(dateObj, tz) {
   }).format(dateObj);
 }
 
+function isoAddDays(iso, days, tz) {
+  const d = new Date(`${iso}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return isoDateInTZ(d, tz);
+}
+
 function prettyDateInTZ(dateObj, tz) {
-  // "Thu 8 January 2026"
   const parts = new Intl.DateTimeFormat("en-GB", {
     timeZone: tz,
     weekday: "short",
@@ -46,7 +50,6 @@ function prettyDateInTZ(dateObj, tz) {
 }
 
 function weekdayShortFromISO(iso, tz) {
-  // using midday UTC avoids edge cases
   const d = new Date(`${iso}T12:00:00Z`);
   return new Intl.DateTimeFormat("en-GB", { timeZone: tz, weekday: "short" }).format(d);
 }
@@ -65,7 +68,6 @@ function londonNowMinutes() {
 }
 
 function parseCSV(text) {
-  // Simple CSV parsing (works for your timetable format)
   const lines = text.replace(/\r/g, "").split("\n").filter(l => l.trim().length);
   if (lines.length < 2) return [];
 
@@ -114,7 +116,6 @@ function toggleTheme() {
 }
 
 function buildRollingSchedule(todayRow, tomorrowRow, nowMins) {
-  // For each prayer: if today time passed, show tomorrow time.
   const items = PRAYERS.map(p => {
     const tToday = todayRow?.[p.key] || "";
     const tTomorrow = tomorrowRow?.[p.key] || "";
@@ -125,15 +126,9 @@ function buildRollingSchedule(todayRow, tomorrowRow, nowMins) {
     const displayTime = useTomorrow ? tTomorrow : tToday;
     const displayDay = useTomorrow ? "tomorrow" : "today";
 
-    return {
-      key: p.key,
-      baseName: p.name,
-      displayTime,
-      displayDay,
-    };
+    return { key: p.key, baseName: p.name, displayTime, displayDay };
   });
 
-  // Find next upcoming (smallest minutes from now)
   let bestKey = null;
   let bestDelta = Infinity;
 
@@ -142,11 +137,8 @@ function buildRollingSchedule(todayRow, tomorrowRow, nowMins) {
     if (mins === null) continue;
 
     let delta;
-    if (it.displayDay === "today") {
-      delta = mins - nowMins;
-    } else {
-      delta = (24 * 60 - nowMins) + mins;
-    }
+    if (it.displayDay === "today") delta = mins - nowMins;
+    else delta = (24 * 60 - nowMins) + mins;
 
     if (delta >= 0 && delta < bestDelta) {
       bestDelta = delta;
@@ -158,24 +150,21 @@ function buildRollingSchedule(todayRow, tomorrowRow, nowMins) {
 }
 
 function render(todayISO, tomorrowISO, todayRow, tomorrowRow) {
-  const now = new Date();
-  els.datePill.textContent = prettyDateInTZ(now, TIMEZONE);
+  els.datePill.textContent = prettyDateInTZ(new Date(), TIMEZONE);
 
   const nowMins = londonNowMinutes();
   const { items, bestKey } = buildRollingSchedule(todayRow, tomorrowRow, nowMins);
 
-  // Table rows
   els.timesBody.innerHTML = "";
 
   for (const it of items) {
     const tr = document.createElement("tr");
     if (it.key === bestKey) tr.classList.add("is-current");
 
-    // Prayer name (Dhuhr -> Jumu’ah if the displayed day is Friday)
     let prayerLabel = it.baseName;
     if (it.key === "dhuhr") {
       const isoForLabel = (it.displayDay === "today") ? todayISO : tomorrowISO;
-      const wd = weekdayShortFromISO(isoForLabel, TIMEZONE); // "Fri"
+      const wd = weekdayShortFromISO(isoForLabel, TIMEZONE);
       if (wd === "Fri") prayerLabel = "Jumu’ah";
     }
 
@@ -191,14 +180,8 @@ function render(todayISO, tomorrowISO, todayRow, tomorrowRow) {
     els.timesBody.appendChild(tr);
   }
 
-  // Status
-  if (!todayRow) {
-    els.statusText.textContent = `No timetable found for ${todayISO}.`;
-  } else {
-    els.statusText.textContent = "Updated Automatically Daily";
-  }
+  els.statusText.textContent = todayRow ? "Updated Automatically Daily" : `No timetable found for ${todayISO}.`;
 
-  // Makrooh (use today's data)
   if (!todayRow) {
     els.mkAfter.textContent = "--";
     els.mkBefore.textContent = "--";
@@ -239,46 +222,30 @@ async function loadTimetable() {
 }
 
 async function init() {
-  // Theme
   setTheme(getThemePref());
   els.themeToggle.addEventListener("click", toggleTheme);
 
   els.statusText.textContent = "Loading…";
 
-  const byDate = await loadTimetable();
+  let byDate = await loadTimetable();
 
-  const todayISO = isoDateInTZ(new Date(), TIMEZONE);
-  const tomorrowISO = isoDateInTZ(new Date(Date.now() + 36 * 3600 * 1000), TIMEZONE);
+  let todayISO = isoDateInTZ(new Date(), TIMEZONE);
+  let tomorrowISO = isoAddDays(todayISO, 1, TIMEZONE);
 
-  const todayRow = byDate.get(todayISO);
-  const tomorrowRow = byDate.get(tomorrowISO);
+  render(todayISO, tomorrowISO, byDate.get(todayISO), byDate.get(tomorrowISO));
 
-  render(todayISO, tomorrowISO, todayRow, tomorrowRow);
-
-  // Auto refresh at midnight (checks every minute)
+  // Auto refresh at midnight (checks every minute) + keep highlight accurate
   setInterval(async () => {
     const currentToday = isoDateInTZ(new Date(), TIMEZONE);
+
     if (currentToday !== todayISO) {
-      // Date changed in London, reload timetable and re-render
-      try {
-        const updated = await loadTimetable();
-        const newTomorrow = isoDateInTZ(new Date(Date.now() + 36 * 3600 * 1000), TIMEZONE);
-        render(
-          currentToday,
-          newTomorrow,
-          updated.get(currentToday),
-          updated.get(newTomorrow)
-        );
-      } catch (e) {
-        // keep quiet, but show a small message
-        els.statusText.textContent = "Updated Automatically Daily";
-      }
-    } else {
-      // Same day, but the highlighted row may change through the day
-      const todayRowLive = byDate.get(todayISO);
-      const tomorrowRowLive = byDate.get(tomorrowISO);
-      render(todayISO, tomorrowISO, todayRowLive, tomorrowRowLive);
+      // New day in London, reload data
+      byDate = await loadTimetable();
+      todayISO = currentToday;
+      tomorrowISO = isoAddDays(todayISO, 1, TIMEZONE);
     }
+
+    render(todayISO, tomorrowISO, byDate.get(todayISO), byDate.get(tomorrowISO));
   }, 60000);
 }
 
