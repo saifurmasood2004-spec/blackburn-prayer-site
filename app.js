@@ -4,7 +4,7 @@ const TIMEZONE = "Europe/London";
 const PRAYERS = [
   { key: "fajr", name: "Fajr" },
   { key: "sunrise", name: "Sunrise" },
-  { key: "dhuhr", name: "Dhuhr" },  // may display as Jumu’ah
+  { key: "dhuhr", name: "Dhuhr" }, // may display as Jumu’ah
   { key: "asr1", name: "Asr 1" },
   { key: "asr2", name: "Asr 2" },
   { key: "maghrib", name: "Maghrib" },
@@ -31,7 +31,7 @@ function isoDateInTZ(dateObj, tz) {
 }
 
 function isoAddDays(iso, days, tz) {
-  const d = new Date(`${iso}T12:00:00Z`);
+  const d = new Date(`${iso}T12:00:00Z`); // midday avoids edge issues
   d.setUTCDate(d.getUTCDate() + days);
   return isoDateInTZ(d, tz);
 }
@@ -115,52 +115,63 @@ function toggleTheme() {
   setTheme(current === "dark" ? "light" : "dark");
 }
 
+function getCurrentPrayerKeyToday(todayRow, nowMins) {
+  // Highlight stays from a prayer's start until the next prayer starts.
+  // Before Fajr: no highlight (we do not show yesterday's Isha as current).
+  if (!todayRow) return null;
+
+  let currentKey = null;
+
+  for (const p of PRAYERS) {
+    const m = hhmmToMinutes(todayRow[p.key]);
+    if (m === null) continue;
+
+    if (m <= nowMins) currentKey = p.key;
+    else break; // PRAYERS is in chronological order
+  }
+
+  return currentKey; // may be null before Fajr
+}
+
 function buildRollingSchedule(todayRow, tomorrowRow, nowMins) {
+  const currentKey = getCurrentPrayerKeyToday(todayRow, nowMins);
+
   const items = PRAYERS.map(p => {
     const tToday = todayRow?.[p.key] || "";
     const tTomorrow = tomorrowRow?.[p.key] || "";
 
     const mToday = hhmmToMinutes(tToday);
-    const useTomorrow = (mToday === null) ? true : (mToday < nowMins);
 
-    const displayTime = useTomorrow ? tTomorrow : tToday;
-    const displayDay = useTomorrow ? "tomorrow" : "today";
+    // Use tomorrow's timing if this prayer has passed today AND it's not the current prayer.
+    // This keeps the current prayer showing today's time until the next prayer starts.
+    const useTomorrow = (mToday === null)
+      ? true
+      : (mToday < nowMins && p.key !== currentKey);
 
-    return { key: p.key, baseName: p.name, displayTime, displayDay };
+    return {
+      key: p.key,
+      baseName: p.name,
+      displayTime: useTomorrow ? tTomorrow : tToday,
+      displayDay: useTomorrow ? "tomorrow" : "today",
+    };
   });
 
-  let bestKey = null;
-  let bestDelta = Infinity;
-
-  for (const it of items) {
-    const mins = hhmmToMinutes(it.displayTime);
-    if (mins === null) continue;
-
-    let delta;
-    if (it.displayDay === "today") delta = mins - nowMins;
-    else delta = (24 * 60 - nowMins) + mins;
-
-    if (delta >= 0 && delta < bestDelta) {
-      bestDelta = delta;
-      bestKey = it.key;
-    }
-  }
-
-  return { items, bestKey };
+  return { items, highlightKey: currentKey };
 }
 
 function render(todayISO, tomorrowISO, todayRow, tomorrowRow) {
   els.datePill.textContent = prettyDateInTZ(new Date(), TIMEZONE);
 
   const nowMins = londonNowMinutes();
-  const { items, bestKey } = buildRollingSchedule(todayRow, tomorrowRow, nowMins);
+  const { items, highlightKey } = buildRollingSchedule(todayRow, tomorrowRow, nowMins);
 
   els.timesBody.innerHTML = "";
 
   for (const it of items) {
     const tr = document.createElement("tr");
-    if (it.key === bestKey) tr.classList.add("is-current");
+    if (it.key === highlightKey) tr.classList.add("is-current");
 
+    // Dhuhr -> Jumu’ah if the displayed Dhuhr row is Friday
     let prayerLabel = it.baseName;
     if (it.key === "dhuhr") {
       const isoForLabel = (it.displayDay === "today") ? todayISO : tomorrowISO;
@@ -182,6 +193,7 @@ function render(todayISO, tomorrowISO, todayRow, tomorrowRow) {
 
   els.statusText.textContent = todayRow ? "Updated Automatically Daily" : `No timetable found for ${todayISO}.`;
 
+  // Makrooh based on today's row
   if (!todayRow) {
     els.mkAfter.textContent = "--";
     els.mkBefore.textContent = "--";
@@ -239,7 +251,6 @@ async function init() {
     const currentToday = isoDateInTZ(new Date(), TIMEZONE);
 
     if (currentToday !== todayISO) {
-      // New day in London, reload data
       byDate = await loadTimetable();
       todayISO = currentToday;
       tomorrowISO = isoAddDays(todayISO, 1, TIMEZONE);
