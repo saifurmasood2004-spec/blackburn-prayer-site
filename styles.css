@@ -285,3 +285,31 @@ body{
   color:var(--text);
   font-weight:600;
 }
+
+@media (max-width: 480px){
+  .topbar{
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .topNav{
+    order: 1;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .themeToggle{
+    order: 1;
+    margin-left: auto;
+  }
+
+  .topTitle{
+    order: 2;
+    width: 100%;
+    white-space: normal;
+    text-overflow: clip;
+    overflow: visible;
+    font-size: 20px; /* slightly smaller to keep it neat */
+  }
+}
