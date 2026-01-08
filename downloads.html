@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Downloads | Blackburn Prayer Times</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topTitle">Blackburn Prayer Times</div>
+
+  <nav class="topNav" aria-label="Main">
+    <a class="navLink" href="index.html">Home</a>
+    <a class="navLink is-active" href="downloads.html">Download</a>
+  </nav>
+
+  <button id="themeToggle" class="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">
+    <span id="themeIcon" class="icon" aria-hidden="true">🌙</span>
+  </button>
+</header>
+
+<main class="wrap">
+
+  <section class="card">
+    <div class="pageTitle">Downloads</div>
+    <div class="pageIntro">
+      Download the Blackburn timetable data for local use.
+    </div>
+
+    <div class="downloadGrid">
+      <a class="downloadBtn" href="assets/blackburn_prayer_times.xlsm" download>
+        Download Excel (XLSM)
+      </a>
+
+      <a class="downloadBtn" href="assets/blackburn_prayer_times.pdf" download>
+        Download PDF
+      </a>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="pageTitle">Usage note</div>
+    <div class="disclaimer">
+      By downloading and using these files, you agree that if you reproduce or republish this timetable data
+      (including in your own design, print, website, or distribution), you will include a clear reference:
+      <span class="credit">“Blackburn Unified Prayer Times”</span>.
+      <br><br>
+      These files are provided for convenience. Please verify suitability for your own local use.
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div>Time zone: Europe/London</div>
+    <div>© <span id="copyrightYear"></span> Blackburn Unified Prayer Times</div>
+  </footer>
+
+</main>
+
+<script>
+  // Keep theme consistent across pages
+  const themeToggle = document.getElementById("themeToggle");
+  const themeIcon = document.getElementById("themeIcon");
+
+  function setTheme(theme){
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("bpt_theme", theme);
+    themeIcon.textContent = theme === "dark" ? "☀️" : "🌙";
+  }
+  function getThemePref(){
+    return localStorage.getItem("bpt_theme") || "light";
+  }
+  function toggleTheme(){
+    const current = document.documentElement.getAttribute("data-theme") || "light";
+    setTheme(current === "dark" ? "light" : "dark");
+  }
+
+  setTheme(getThemePref());
+  themeToggle.addEventListener("click", toggleTheme);
+
+  // Copyright year
+  document.getElementById("copyrightYear").textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>
