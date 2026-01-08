@@ -4,13 +4,22 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Blackburn Prayer Times</title>
+
   <link rel="stylesheet" href="styles.css" />
+
+  <!-- Favicon / app icons -->
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+
+  <!-- Optional: nicer "add to home screen" behaviour on Android -->
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#8fb7b8">
 </head>
 <body>
   <header class="topbar">
-    <div class="brand">
-      <div class="logo">BPT</div>
-    </div>
+    <div class="topTitle">Blackburn Prayer Times</div>
 
     <button class="themeToggle" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">
       <span class="icon" id="themeIcon" aria-hidden="true">🌙</span>
@@ -19,8 +28,6 @@
 
   <main class="wrap">
     <section class="card">
-      <h1 class="title">Blackburn Prayer Times</h1>
-
       <div class="datePill" id="datePill">Loading date…</div>
 
       <div class="tableWrap">
@@ -31,9 +38,7 @@
               <th class="right">Start</th>
             </tr>
           </thead>
-          <tbody id="timesBody">
-            <!-- injected by JS -->
-          </tbody>
+          <tbody id="timesBody"></tbody>
         </table>
       </div>
 
