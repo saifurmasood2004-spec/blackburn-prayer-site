@@ -5,10 +5,10 @@
   --shadow: 0 10px 26px rgba(20, 30, 40, 0.08);
   --text: #242424;
   --muted: rgba(36,36,36,.70);
-  --accent: #8fb7b8;
   --accentSoft: #e7f2f3;
   --pill: #dff0f6;
   --rowHighlight: #eaf5fb;
+  --rule: rgba(20,30,40,0.10);
 }
 
 [data-theme="dark"]{
@@ -18,17 +18,17 @@
   --shadow: 0 10px 26px rgba(0,0,0,0.35);
   --text: #eaf1ff;
   --muted: rgba(234,241,255,.70);
-  --accent: #8fb7b8;
   --accentSoft: rgba(143,183,184,0.12);
   --pill: rgba(223,240,246,0.16);
   --rowHighlight: rgba(234,245,251,0.12);
+  --rule: rgba(255,255,255,0.14);
 }
 
 *{ box-sizing: border-box; }
 
 body{
   margin: 0;
-  font-family: ui-serif, Georgia, "Times New Roman", serif; /* serif everywhere */
+  font-family: ui-serif, Georgia, "Times New Roman", serif;
   background: var(--bg);
   color: var(--text);
 }
@@ -44,10 +44,13 @@ body{
 
 .topTitle{
   font-family: ui-serif, Georgia, "Times New Roman", serif;
-  font-weight: 800;       /* bold thick */
-  font-size: 26px;        /* larger */
+  font-weight: 800;     /* bold */
+  font-size: 22px;      /* reduced so it fits on one line on mobile */
   letter-spacing: 0.2px;
   line-height: 1.1;
+  white-space: nowrap;  /* keep one line */
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .themeToggle{
@@ -85,84 +88,90 @@ body{
   margin-top: 14px;
 }
 
-.subtitle{
-  margin: 0 0 12px 0;
-  font-family: ui-serif, Georgia, "Times New Roman", serif;
-  font-weight: 800;
-  font-size: 20px;
-}
-
+/* Date pill: smaller + non-bold */
 .datePill{
   display: inline-block;
-  padding: 7px 12px;         /* smaller pill */
+  padding: 7px 12px;
   border-radius: 999px;
   background: var(--pill);
   border: 1px solid var(--border);
   color: var(--text);
-  font-weight: 800;          /* bold */
-  font-size: 15px;           /* slightly smaller */
+  font-weight: 400;     /* non-bold */
+  font-size: 15px;
   letter-spacing: 0.1px;
 }
 
+/* TABLE AREA: no outer box, only inner horizontal rules */
 .tableWrap{
   margin-top: 14px;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  overflow: hidden;
+  padding: 0 10px;      /* creates space so lines don't touch card sides */
 }
 
 .timesTable{
   width: 100%;
   border-collapse: collapse;
-  background: var(--card);
+  background: transparent;
 }
 
 .timesTable thead th{
   text-align: left;
-  padding: 12px 14px;
+  padding: 10px 4px 12px;
   font-size: 13px;
   color: var(--muted);
-  background: var(--accentSoft);
-  border-bottom: 1px solid var(--border);
-  font-weight: 800;
-  font-family: ui-serif, Georgia, "Times New Roman", serif;
+  font-weight: 600;     /* semi-bold */
+  border-bottom: 1px solid var(--rule);
 }
 
 .timesTable thead th.right{ text-align: right; }
 
+/* body rows */
 .timesTable tbody td{
-  padding: 13px 14px;
-  border-bottom: 1px solid var(--border);
-  font-size: 16px;          /* clearer */
-  font-family: ui-serif, Georgia, "Times New Roman", serif;
+  padding: 13px 4px;
+  border-bottom: 1px solid var(--rule); /* horizontal lines only */
+  font-size: 16px;
 }
 
 .timesTable tbody tr:last-child td{
   border-bottom: none;
 }
 
+/* prayer names: semi-bold */
 .timesTable tbody td:first-child{
-  font-weight: 800;         /* prayer names bold */
+  font-weight: 600;     /* semi-bold */
   letter-spacing: 0.1px;
 }
 
+/* timings: non-bold */
 .timesTable tbody td.right{
   text-align: right;
-  font-weight: 900;         /* times bold */
-  font-size: 17px;
-  letter-spacing: 0.3px;
+  font-weight: 400;     /* non-bold */
+  font-size: 16px;
+  letter-spacing: 0.2px;
 }
 
+/* highlight row background */
 .timesTable tbody tr.is-current{
   background: var(--rowHighlight);
+}
+
+/* in highlight row, only the timing becomes semi-bold */
+.timesTable tbody tr.is-current td.right{
+  font-weight: 600;     /* semi-bold */
 }
 
 .statusText{
   margin: 12px 0 0;
   color: var(--muted);
   font-size: 13px;
+  font-weight: 400;     /* non-bold */
+}
+
+/* Makrooh card */
+.subtitle{
+  margin: 0 0 12px 0;
   font-family: ui-serif, Georgia, "Times New Roman", serif;
-  font-weight: 700;
+  font-weight: 600;     /* semi-bold */
+  font-size: 20px;
 }
 
 .mkGrid{
@@ -177,18 +186,18 @@ body{
   background: var(--accentSoft);
 }
 
+/* sub headings like "Makrooh after sunrise": light bold (less than semi-bold) */
 .mkLabel{
   font-size: 14px;
   color: var(--muted);
-  font-family: ui-serif, Georgia, "Times New Roman", serif;
-  font-weight: 800;
+  font-weight: 500;     /* light bold */
 }
 
+/* values: non-bold */
 .mkValue{
   margin-top: 6px;
   font-size: 16px;
-  font-weight: 900;
-  font-family: ui-serif, Georgia, "Times New Roman", serif;
+  font-weight: 400;     /* non-bold */
 }
 
 .footer{
@@ -200,6 +209,5 @@ body{
   gap: 10px;
   justify-content: space-between;
   flex-wrap: wrap;
-  font-family: ui-serif, Georgia, "Times New Roman", serif;
-  font-weight: 700;
+  font-weight: 400;     /* non-bold */
 }
