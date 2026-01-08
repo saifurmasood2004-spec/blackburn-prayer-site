@@ -208,3 +208,80 @@ body{
   flex-wrap:wrap;
   font-weight:400; /* non-bold */
 }
+
+/* Top navigation */
+.topNav{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  margin-left:auto;
+  margin-right:10px; /* space before theme button */
+}
+
+.navLink{
+  text-decoration:none;
+  color:var(--labelBlue);
+  padding:8px 10px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:400;
+  border:1px solid transparent;
+}
+
+.navLink:hover{
+  border:1px solid var(--border);
+}
+
+.navLink.is-active{
+  background:var(--accentSoft);
+  border:1px solid var(--border);
+  color:var(--text);
+}
+
+/* Downloads page */
+.pageTitle{
+  font-size:18px;
+  font-weight:600;
+  margin-bottom:8px;
+}
+
+.pageIntro{
+  color:var(--muted);
+  font-size:13px;
+  font-weight:400;
+  margin-bottom:14px;
+}
+
+.downloadGrid{
+  display:grid;
+  gap:10px;
+  grid-template-columns: 1fr;
+}
+
+.downloadBtn{
+  display:block;
+  text-align:center;
+  padding:12px 14px;
+  border-radius:14px;
+  border:1px solid var(--border);
+  background:var(--accentSoft);
+  color:var(--text);
+  text-decoration:none;
+  font-weight:600;
+}
+
+.downloadBtn:hover{
+  filter:brightness(0.98);
+}
+
+.disclaimer{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.55;
+  font-weight:400;
+}
+
+.credit{
+  color:var(--text);
+  font-weight:600;
+}
