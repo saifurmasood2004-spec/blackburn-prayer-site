@@ -1,72 +1,59 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8">
   <title>Blackburn Prayer Times</title>
-
-  <link rel="stylesheet" href="styles.css" />
-
-  <!-- Favicon / app icons -->
-  <link rel="icon" href="favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-
-  <!-- Optional: nicer "add to home screen" behaviour on Android -->
-  <link rel="manifest" href="site.webmanifest">
-  <meta name="theme-color" content="#8fb7b8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header class="topbar">
-    <div class="topTitle">Blackburn Prayer Times</div>
 
-    <button class="themeToggle" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">
-      <span class="icon" id="themeIcon" aria-hidden="true">🌙</span>
-    </button>
-  </header>
+<header class="topbar">
+  <div class="topTitle">Blackburn Prayer Times</div>
+  <button id="themeToggle" class="themeToggle"><span id="themeIcon">🌙</span></button>
+</header>
 
-  <main class="wrap">
-    <section class="card">
-      <div class="datePill" id="datePill">Loading date…</div>
+<main class="wrap">
 
-      <div class="tableWrap">
-        <table class="timesTable" aria-label="Prayer times">
-          <thead>
-            <tr>
-              <th>Prayer</th>
-              <th class="right">Start</th>
-            </tr>
-          </thead>
-          <tbody id="timesBody"></tbody>
-        </table>
+  <section class="card">
+    <div class="datePill" id="datePill"></div>
+
+    <div class="tableWrap">
+      <table class="timesTable">
+        <thead>
+          <tr>
+            <th>Prayer</th>
+            <th class="right">Start</th>
+          </tr>
+        </thead>
+        <tbody id="timesBody"></tbody>
+      </table>
+    </div>
+
+    <div class="statusText" id="statusText"></div>
+  </section>
+
+  <section class="card">
+    <h2 class="subtitle">Makrooh Times</h2>
+    <div class="mkGrid">
+      <div class="mkItem">
+        <div class="mkLabel">Makrooh after sunrise</div>
+        <div class="mkValue" id="mkAfter"></div>
       </div>
-
-      <p class="statusText" id="statusText">Loading…</p>
-    </section>
-
-    <section class="card">
-      <h2 class="subtitle">Makrooh Times</h2>
-
-      <div class="mkGrid">
-        <div class="mkItem">
-          <div class="mkLabel">Makrooh after Sunrise</div>
-          <div class="mkValue" id="mkAfter">--</div>
-        </div>
-        <div class="mkItem">
-          <div class="mkLabel">Makrooh before Maghrib</div>
-          <div class="mkValue" id="mkBefore">--</div>
-        </div>
+      <div class="mkItem">
+        <div class="mkLabel">Makrooh before Maghrib</div>
+        <div class="mkValue" id="mkBefore"></div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <footer class="footer">
-      <div>Time zone: Europe/London</div>
-      <div>© <span id="copyrightYear"></span> Blackburn Unified Prayer Times</div>
-    </footer>
-  </main>
+  <footer class="footer">
+    <div>Time zone: Europe/London</div>
+    <div>© <span id="copyrightYear"></span> Blackburn Unified Prayer Times</div>
+  </footer>
 
-  <script src="app.js"></script>
+</main>
+
+<script src="app.js"></script>
 </body>
 </html>
-
