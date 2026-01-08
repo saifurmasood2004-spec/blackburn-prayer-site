@@ -10,16 +10,18 @@
 
 <header class="topbar">
   <div class="topTitle">Blackburn Prayer Times</div>
-  <button id="themeToggle" class="themeToggle"><span id="themeIcon">🌙</span></button>
+  <button id="themeToggle" class="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">
+    <span id="themeIcon" class="icon" aria-hidden="true">🌙</span>
+  </button>
 </header>
 
 <main class="wrap">
 
   <section class="card">
-    <div class="datePill" id="datePill"></div>
+    <div class="datePill" id="datePill">Loading…</div>
 
     <div class="tableWrap">
-      <table class="timesTable">
+      <table class="timesTable" aria-label="Prayer times">
         <thead>
           <tr>
             <th>Prayer</th>
@@ -38,11 +40,11 @@
     <div class="mkGrid">
       <div class="mkItem">
         <div class="mkLabel">Makrooh after sunrise</div>
-        <div class="mkValue" id="mkAfter"></div>
+        <div class="mkValue" id="mkAfter">--</div>
       </div>
       <div class="mkItem">
         <div class="mkLabel">Makrooh before Maghrib</div>
-        <div class="mkValue" id="mkBefore"></div>
+        <div class="mkValue" id="mkBefore">--</div>
       </div>
     </div>
   </section>
