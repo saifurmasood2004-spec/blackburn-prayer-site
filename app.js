@@ -234,9 +234,9 @@ function render(todayISO, tomorrowISO, todayRow, tomorrowRow) {
   // Update next prayer target + label
   countdownTarget = getNextPrayerTarget(todayISO, tomorrowISO, todayRow, tomorrowRow);
   if (countdownTarget) {
-    els.nextPrayerText.textContent = `The call of Prayer of ${countdownTarget.label} is in`;
+    els.nextPrayerText.textContent = `The Adhan of ${countdownTarget.label} is in`;
   } else {
-    els.nextPrayerText.textContent = "The call of Prayer is in";
+    els.nextPrayerText.textContent = "The Adhan is in";
     els.nextPrayerCountdown.textContent = "--:--:--";
   }
 
@@ -361,3 +361,4 @@ init().catch(() => {
   const el = document.getElementById("copyrightYear");
   if (el) el.textContent = y;
 });
+
