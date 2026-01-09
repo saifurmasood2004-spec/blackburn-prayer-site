@@ -19,7 +19,12 @@ const els = {
   mkBefore: document.getElementById("mkBefore"),
   themeToggle: document.getElementById("themeToggle"),
   themeIcon: document.getElementById("themeIcon"),
+  nextPrayerText: document.getElementById("nextPrayerText"),
+  nextPrayerCountdown: document.getElementById("nextPrayerCountdown"),
 };
+
+// Countdown state
+let countdownTarget = null; // { label, dayOffset, targetSec }
 
 function isoDateInTZ(dateObj, tz) {
   return new Intl.DateTimeFormat("en-CA", {
@@ -67,6 +72,22 @@ function londonNowMinutes() {
   return h * 60 + m;
 }
 
+/* Seconds version for countdown */
+function londonNowSeconds() {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: TIMEZONE,
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  }).formatToParts(new Date());
+
+  const h = Number(parts.find(p => p.type === "hour")?.value ?? "0");
+  const m = Number(parts.find(p => p.type === "minute")?.value ?? "0");
+  const s = Number(parts.find(p => p.type === "second")?.value ?? "0");
+  return h * 3600 + m * 60 + s;
+}
+
 function parseCSV(text) {
   const lines = text.replace(/\r/g, "").split("\n").filter(l => l.trim().length);
   if (lines.length < 2) return [];
@@ -98,6 +119,60 @@ function hhmmAddMinutes(hhmm, mins) {
   const hh = String(Math.floor(total / 60)).padStart(2, "0");
   const mm = String(total % 60).padStart(2, "0");
   return `${hh}:${mm}`;
+}
+
+/* Countdown helpers */
+function hhmmToSeconds(hhmm) {
+  const mins = hhmmToMinutes(hhmm);
+  if (mins === null) return null;
+  return mins * 60;
+}
+
+function pad2(n) {
+  return String(n).padStart(2, "0");
+}
+
+function formatHMS(totalSeconds) {
+  const t = Math.max(0, Math.floor(totalSeconds));
+  const hh = Math.floor(t / 3600);
+  const mm = Math.floor((t % 3600) / 60);
+  const ss = t % 60;
+  return `${pad2(hh)}:${pad2(mm)}:${pad2(ss)}`;
+}
+
+function getNextPrayerTarget(todayISO, tomorrowISO, todayRow, tomorrowRow) {
+  if (!todayRow) return null;
+
+  const nowSec = londonNowSeconds();
+
+  const todayTimes = PRAYERS.map(p => ({
+    key: p.key,
+    name: p.name,
+    sec: hhmmToSeconds(todayRow[p.key]),
+  })).filter(x => x.sec !== null);
+
+  const nextToday = todayTimes.find(x => x.sec > nowSec);
+
+  const makeLabel = (key, baseName, isoForDay) => {
+    if (key === "dhuhr") {
+      const wd = weekdayShortFromISO(isoForDay, TIMEZONE);
+      if (wd === "Fri") return "Jumu’ah";
+    }
+    return baseName;
+  };
+
+  if (nextToday) {
+    const label = makeLabel(nextToday.key, nextToday.name, todayISO);
+    return { label, dayOffset: 0, targetSec: nextToday.sec };
+  }
+
+  if (!tomorrowRow) return null;
+
+  const fajrSec = hhmmToSeconds(tomorrowRow.fajr);
+  if (fajrSec === null) return null;
+
+  const label = makeLabel("fajr", "Fajr", tomorrowISO);
+  return { label, dayOffset: 1, targetSec: fajrSec };
 }
 
 /* Theme */
@@ -155,6 +230,15 @@ function buildRollingSchedule(todayRow, tomorrowRow, nowMins) {
 
 function render(todayISO, tomorrowISO, todayRow, tomorrowRow) {
   els.datePill.textContent = prettyDateInTZ(new Date(), TIMEZONE);
+
+  // Update next prayer target + label
+  countdownTarget = getNextPrayerTarget(todayISO, tomorrowISO, todayRow, tomorrowRow);
+  if (countdownTarget) {
+    els.nextPrayerText.textContent = `The call of Prayer of ${countdownTarget.label} is in`;
+  } else {
+    els.nextPrayerText.textContent = "The call of Prayer is in";
+    els.nextPrayerCountdown.textContent = "--:--:--";
+  }
 
   const nowMins = londonNowMinutes();
   const { items, highlightKey } = buildRollingSchedule(todayRow, tomorrowRow, nowMins);
@@ -239,6 +323,22 @@ async function init() {
   let tomorrowISO = isoAddDays(todayISO, 1, TIMEZONE);
 
   render(todayISO, tomorrowISO, byDate.get(todayISO), byDate.get(tomorrowISO));
+
+  // Live countdown tick (every second)
+  setInterval(() => {
+    if (!countdownTarget) return;
+
+    const nowSec = londonNowSeconds();
+    const targetAbs = (countdownTarget.dayOffset * 86400) + countdownTarget.targetSec;
+    const remaining = targetAbs - nowSec;
+
+    els.nextPrayerCountdown.textContent = formatHMS(remaining);
+
+    // when it hits 0, re-render to move to next prayer
+    if (remaining <= 0) {
+      render(todayISO, tomorrowISO, byDate.get(todayISO), byDate.get(tomorrowISO));
+    }
+  }, 1000);
 
   // Auto refresh at midnight + keep highlight accurate
   setInterval(async () => {
