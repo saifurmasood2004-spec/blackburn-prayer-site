@@ -313,3 +313,21 @@ body{
     font-size: 20px; /* slightly smaller to keep it neat */
   }
 }
+
+/* Next prayer countdown card */
+.nextCard{
+  padding: 14px 18px;
+}
+
+.nextLabel{
+  color: var(--labelBlue);
+  font-weight: 500;   /* same style as mkLabel */
+  font-size: 14px;    /* same size as mkLabel */
+}
+
+.nextCountdown{
+  margin-top: 6px;
+  font-size: 18px;
+  font-weight: 600;   /* semi-bold numbers */
+  letter-spacing: 0.8px;
+}
