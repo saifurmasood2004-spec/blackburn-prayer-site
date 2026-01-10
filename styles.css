@@ -331,3 +331,123 @@ body{
   font-weight: 600;   /* semi-bold numbers */
   letter-spacing: 0.8px;
 }
+
+/* Qibla page */
+.qiblaActions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+
+.qiblaActions .downloadBtn{
+  cursor:pointer;
+}
+
+.qiblaStatus{
+  margin-top:12px;
+  color:var(--muted);
+  font-size:13px;
+  font-weight:400;
+}
+
+.qiblaCard{
+  display:grid;
+  gap:16px;
+  grid-template-columns: 1fr;
+  align-items:center;
+}
+
+.qiblaCompassWrap{
+  display:flex;
+  justify-content:center;
+}
+
+.qiblaCompass{
+  width:220px;
+  height:220px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  box-shadow: var(--shadow);
+  background: var(--card);
+  position:relative;
+}
+
+.qiblaDial{
+  position:absolute;
+  inset:0;
+  border-radius:999px;
+}
+
+.qiblaN,.qiblaE,.qiblaS,.qiblaW{
+  position:absolute;
+  font-weight:600;
+  color:var(--labelBlue);
+  font-size:14px;
+}
+
+.qiblaN{ top:10px; left:50%; transform:translateX(-50%); }
+.qiblaS{ bottom:10px; left:50%; transform:translateX(-50%); }
+.qiblaE{ right:12px; top:50%; transform:translateY(-50%); }
+.qiblaW{ left:12px; top:50%; transform:translateY(-50%); }
+
+.qiblaNeedleGroup{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transform: rotate(0deg);
+  transition: transform 120ms linear;
+}
+
+.qiblaNeedle{
+  width:6px;
+  height:88px;
+  border-radius:999px;
+  background: var(--labelBlue);
+  transform: translateY(-44px);
+}
+
+.qiblaDot{
+  width:12px;
+  height:12px;
+  border-radius:999px;
+  background: var(--text);
+  border:2px solid var(--card);
+  position:absolute;
+}
+
+.qiblaInfo{
+  text-align:center;
+}
+
+.qiblaBig{
+  font-size:30px;
+  font-weight:600;
+  letter-spacing:0.4px;
+}
+
+.qiblaSmall{
+  margin-top:4px;
+  font-size:14px;
+  font-weight:600;
+  color:var(--labelBlue);
+}
+
+.qiblaMuted{
+  margin-top:8px;
+  font-size:13px;
+  font-weight:400;
+  color:var(--muted);
+}
+
+@media (min-width: 720px){
+  .qiblaCard{
+    grid-template-columns: 260px 1fr;
+    text-align:left;
+  }
+  .qiblaInfo{
+    text-align:left;
+  }
+}
