@@ -383,9 +383,18 @@ body{
 .qiblaN,.qiblaE,.qiblaS,.qiblaW{
   position:absolute;
   font-weight:600;
-  color:var(--labelBlue);
   font-size:14px;
 }
+
+.qiblaN{
+  color: var(--labelBlue);
+  font-weight: 700; /* slightly bolder */
+}
+
+.qiblaE,.qiblaS,.qiblaW{
+  color: var(--muted);
+}
+
 
 .qiblaN{ top:10px; left:50%; transform:translateX(-50%); }
 .qiblaS{ bottom:10px; left:50%; transform:translateX(-50%); }
@@ -452,3 +461,4 @@ body{
     text-align:left;
   }
 }
+
