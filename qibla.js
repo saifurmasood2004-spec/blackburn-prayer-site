@@ -5,6 +5,7 @@ const els = {
   btnMotion: document.getElementById("btnMotion"),
   status: document.getElementById("qiblaStatus"),
   needleGroup: document.getElementById("needleGroup"),
+  dial: document.getElementById("qiblaDial"),
   deg: document.getElementById("qiblaDegrees"),
   cardinal: document.getElementById("qiblaCardinal"),
   coords: document.getElementById("qiblaCoords"),
@@ -52,12 +53,46 @@ function toggleTheme() {
   setTheme(current === "dark" ? "light" : "dark");
 }
 
+  let rafPending = false;
+let dialRotation = 0;
+let needleRotation = 0;
+
 function updateUI(){
   if (qiblaBearing === null){
     els.deg.textContent = "--°";
     els.cardinal.textContent = "--";
     return;
   }
+
+  els.deg.textContent = `${Math.round(qiblaBearing)}°`;
+  els.cardinal.textContent = cardinalFromDegrees(qiblaBearing);
+
+  // Default: arrow mode
+  dialRotation = 0;
+  needleRotation = qiblaBearing;
+  els.mode.textContent = "Mode: Direction arrow (no sensor)";
+
+  // Live compass mode
+  if (motionEnabled && deviceHeading !== null){
+    // Rotate the dial so N/E/S/W show real directions as you turn
+    dialRotation = -deviceHeading;
+
+    // Needle points to qibla relative to your current heading
+    needleRotation = norm360(qiblaBearing - deviceHeading);
+
+    els.mode.textContent = "Mode: Live compass (sensor)";
+  }
+
+  // Apply transforms using requestAnimationFrame to reduce lag/jitter
+  if (!rafPending){
+    rafPending = true;
+    requestAnimationFrame(() => {
+      rafPending = false;
+      if (els.dial) els.dial.style.transform = `rotate(${dialRotation}deg)`;
+      els.needleGroup.style.transform = `rotate(${needleRotation}deg)`;
+    });
+  }
+}
 
   els.deg.textContent = `${Math.round(qiblaBearing)}°`;
   els.cardinal.textContent = cardinalFromDegrees(qiblaBearing);
