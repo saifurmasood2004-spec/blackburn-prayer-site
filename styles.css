@@ -398,7 +398,12 @@ body{
   align-items:center;
   justify-content:center;
   transform: rotate(0deg);
-  transition: transform 120ms linear;
+  transition: none; /* remove lag */
+  will-change: transform;
+}
+
+.qiblaDial{
+  will-change: transform;
 }
 
 .qiblaNeedle{
