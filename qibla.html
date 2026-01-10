@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Qibla Direction | Blackburn Prayer Times</title>
+  <meta name="description" content="Find Qibla direction using your location. Shows direction arrow and live compass when supported.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="styles.css">
+
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#8FB7B8">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topTitle">Blackburn Prayer Times</div>
+
+  <nav class="topNav" aria-label="Main">
+    <a class="navLink" href="index.html">Home</a>
+    <a class="navLink" href="downloads.html">Download</a>
+    <a class="navLink is-active" href="qibla.html">Qibla</a>
+  </nav>
+
+  <button id="themeToggle" class="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">
+    <span id="themeIcon" class="icon" aria-hidden="true">🌙</span>
+  </button>
+</header>
+
+<main class="wrap">
+
+  <section class="card">
+    <div class="pageTitle">Qibla Direction</div>
+    <div class="pageIntro">
+      Allow location to calculate the Qibla direction. If your phone supports it, the compass will rotate as you turn.
+    </div>
+
+    <div class="qiblaActions">
+      <button class="downloadBtn" id="btnLocation" type="button">Use my location</button>
+      <button class="downloadBtn" id="btnMotion" type="button">Enable compass motion</button>
+    </div>
+
+    <div class="qiblaStatus" id="qiblaStatus">Press “Use my location” to begin.</div>
+  </section>
+
+  <section class="card">
+    <div class="qiblaCard">
+      <div class="qiblaCompassWrap">
+        <div class="qiblaCompass">
+          <div class="qiblaDial">
+            <div class="qiblaN">N</div>
+            <div class="qiblaE">E</div>
+            <div class="qiblaS">S</div>
+            <div class="qiblaW">W</div>
+          </div>
+
+          <!-- Needle group rotated by JS -->
+          <div class="qiblaNeedleGroup" id="needleGroup">
+            <div class="qiblaNeedle"></div>
+            <div class="qiblaDot"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="qiblaInfo">
+        <div class="qiblaBig" id="qiblaDegrees">--°</div>
+        <div class="qiblaSmall" id="qiblaCardinal">--</div>
+        <div class="qiblaMuted" id="qiblaCoords">Location: --</div>
+        <div class="qiblaMuted" id="qiblaMode">Mode: Direction arrow (no sensor)</div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div>Time zone: Europe/London</div>
+    <div>© <span id="copyrightYear"></span> Blackburn Unified Prayer Times</div>
+  </footer>
+
+</main>
+
+<script src="qibla.js"></script>
+</body>
+</html>
