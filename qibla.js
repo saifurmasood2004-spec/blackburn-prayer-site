@@ -1,4 +1,4 @@
-const KAABA = { lat: 21.422487, lng: 39.826206 };
+const KAABA = { lat: 21.4224779, lng: 39.8251832 };
 
 const els = {
   btnLocation: document.getElementById("btnLocation"),
