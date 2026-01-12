@@ -49,14 +49,7 @@ jobs:
             const text = fs.readFileSync("resp.json","utf8").trim();
             if (!text) { console.error("ERROR: Empty response body"); process.exit(1); }
 
-            let obj;
-            try { obj = JSON.parse(text); }
-            catch (e) {
-              console.error("ERROR: Response is not valid JSON. First 300 chars:");
-              console.error(text.slice(0,300));
-              process.exit(1);
-            }
-
+            const obj = JSON.parse(text);
             const islamic = obj.islamic || [];
             const day = islamic[1];
             const month = islamic[2];
@@ -77,14 +70,29 @@ jobs:
 
           rm -f resp.json
 
+          echo "---- Debug: list files ----"
+          ls -la
+          echo "---- Debug: show hijri.json if exists ----"
+          if [ -f hijri.json ]; then
+            echo "hijri.json exists"
+            cat hijri.json
+          else
+            echo "hijri.json NOT FOUND"
+            exit 1
+          fi
+
       - name: Commit and push
         run: |
-          if git diff --quiet; then
+          echo "---- Debug: git status ----"
+          git status --porcelain
+
+          if [ -z "$(git status --porcelain)" ]; then
             echo "No changes."
             exit 0
           fi
+
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add hijri.json
-          git commit -m "Update hijri.json"
+          git commit -m "Update hijri.json" || true
           git push
