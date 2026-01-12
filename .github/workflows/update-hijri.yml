@@ -25,7 +25,8 @@ jobs:
             exit 1
           fi
 
-          URL="https://www.moonsighting.org.uk/api/index.php/v1/hijri?country=UK&return=json"
+          TOMORROW=$(date -u -d "+1 day" +"%Y-%m-%d")
+          URL="https://www.moonsighting.org.uk/api/index.php/v1/hijri?country=UK&return=json&date=$TOMORROW"
 
           HTTP_CODE="$(curl -sS -L \
             -o resp.json \
