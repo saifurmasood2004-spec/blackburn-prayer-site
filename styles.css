@@ -105,6 +105,14 @@ body{
   letter-spacing:.1px;
 }
 
+.dateRow{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
 /* No outer box around timetable. Keep inner rules. */
 .tableWrap{
   margin-top:14px;
@@ -461,4 +469,5 @@ body{
     text-align:left;
   }
 }
+
 
