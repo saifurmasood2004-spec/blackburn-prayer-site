@@ -51,7 +51,8 @@ jobs:
 
             const obj = JSON.parse(text);
             const islamic = obj.islamic || [];
-            const day = islamic[1];
+            const rawDay = islamic[1] || "";
+            const day = String(rawDay).replace(/(st|nd|rd|th)$/i, "");
             const month = islamic[2];
             const year = islamic[3];
 
