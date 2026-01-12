@@ -27,18 +27,15 @@ jobs:
 
           URL="https://www.moonsighting.org.uk/api/index.php/v1/hijri?country=UK&return=json"
 
-          # Fetch response into resp.json and capture HTTP status code
           HTTP_CODE="$(curl -sS -L \
             -o resp.json \
             -w "%{http_code}" \
-            -H "Accept: application/json" \
             -H "Authorization: Bearer $ICOUK_BEARER_TOKEN" \
             "$URL")"
 
           echo "ICOUK HTTP status: $HTTP_CODE"
           echo "Response size (bytes): $(wc -c < resp.json | tr -d ' ')"
 
-          # If not 200, show a preview (safe) and fail
           if [ "$HTTP_CODE" != "200" ]; then
             echo "ERROR: ICOUK did not return 200."
             echo "Response preview (first 400 chars):"
@@ -47,11 +44,11 @@ jobs:
             exit 1
           fi
 
-          # Validate JSON before parsing
           node -e '
             const fs = require("fs");
             const text = fs.readFileSync("resp.json","utf8").trim();
             if (!text) { console.error("ERROR: Empty response body"); process.exit(1); }
+
             let obj;
             try { obj = JSON.parse(text); }
             catch (e) {
