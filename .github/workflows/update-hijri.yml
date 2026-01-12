@@ -3,7 +3,7 @@ name: Update Hijri Date (ICOUK)
 on:
   workflow_dispatch:
   schedule:
-    - cron: "5 0 * * *"  # 00:05 UTC daily (UK time will be same in winter, +1 in summer)
+    - cron: "5 0 * * *"
 
 permissions:
   contents: write
@@ -12,49 +12,34 @@ jobs:
   update-hijri:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Fetch Hijri from ICOUK and write hijri.json
+      - name: Fetch Hijri and write hijri.json
         env:
           ICOUK_BEARER_TOKEN: ${{ secrets.ICOUK_BEARER_TOKEN }}
         run: |
           set -e
 
-          # Call ICOUK Hijri API (JSON). Token stays in header (not in URL).
           RESP="$(curl -sS \
             -H "Authorization: Bearer $ICOUK_BEARER_TOKEN" \
             "https://www.moonsighting.org.uk/api/index.php/v1/hijri?country=UK&return=json")"
 
-          # Use Node (already installed) to parse JSON and output "5 Rajab 1447"
-          HIJRI_TEXT="$(node -e '
-            const obj = JSON.parse(process.env.RESP);
+          node -e '
+            const obj = JSON.parse(process.env.RESP || "");
             const islamic = obj.islamic || [];
             const day = islamic[1] ?? "";
             const month = islamic[2] ?? "";
             const year = islamic[3] ?? "";
-            const out = `${day} ${month} ${year}`.trim();
             if (!day || !month || !year) process.exit(2);
-            process.stdout.write(out);
-          ' )"
-
-          # Write file used by the website (no token inside)
-          node -e '
             const fs = require("fs");
             const out = {
-              hijri: process.env.HIJRI_TEXT,
+              hijri: `${day} ${month} ${year}`,
               updated_at_utc: new Date().toISOString()
             };
             fs.writeFileSync("hijri.json", JSON.stringify(out, null, 2) + "\n", "utf8");
           '
 
-          echo "hijri.json updated."
-
-        env:
-          RESP: ${{ '' }}
-          HIJRI_TEXT: ${{ '' }}
-
-      - name: Commit and push if changed
+      - name: Commit and push
         run: |
           if git diff --quiet; then
             echo "No changes."
