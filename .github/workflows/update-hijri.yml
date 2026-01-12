@@ -20,24 +20,65 @@ jobs:
         run: |
           set -e
 
-          RESP="$(curl -sS \
-            -H "Authorization: Bearer $ICOUK_BEARER_TOKEN" \
-            "https://www.moonsighting.org.uk/api/index.php/v1/hijri?country=UK&return=json")"
+          if [ -z "$ICOUK_BEARER_TOKEN" ]; then
+            echo "ERROR: Missing secret ICOUK_BEARER_TOKEN"
+            exit 1
+          fi
 
+          URL="https://www.moonsighting.org.uk/api/index.php/v1/hijri?country=UK&return=json"
+
+          # Fetch response into resp.json and capture HTTP status code
+          HTTP_CODE="$(curl -sS -L \
+            -o resp.json \
+            -w "%{http_code}" \
+            -H "Accept: application/json" \
+            -H "Authorization: Bearer $ICOUK_BEARER_TOKEN" \
+            "$URL")"
+
+          echo "ICOUK HTTP status: $HTTP_CODE"
+          echo "Response size (bytes): $(wc -c < resp.json | tr -d ' ')"
+
+          # If not 200, show a preview (safe) and fail
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "ERROR: ICOUK did not return 200."
+            echo "Response preview (first 400 chars):"
+            head -c 400 resp.json || true
+            echo
+            exit 1
+          fi
+
+          # Validate JSON before parsing
           node -e '
-            const obj = JSON.parse(process.env.RESP || "");
-            const islamic = obj.islamic || [];
-            const day = islamic[1] ?? "";
-            const month = islamic[2] ?? "";
-            const year = islamic[3] ?? "";
-            if (!day || !month || !year) process.exit(2);
             const fs = require("fs");
+            const text = fs.readFileSync("resp.json","utf8").trim();
+            if (!text) { console.error("ERROR: Empty response body"); process.exit(1); }
+            let obj;
+            try { obj = JSON.parse(text); }
+            catch (e) {
+              console.error("ERROR: Response is not valid JSON. First 300 chars:");
+              console.error(text.slice(0,300));
+              process.exit(1);
+            }
+
+            const islamic = obj.islamic || [];
+            const day = islamic[1];
+            const month = islamic[2];
+            const year = islamic[3];
+
+            if (!day || !month || !year) {
+              console.error("ERROR: Unexpected JSON structure:", JSON.stringify(obj).slice(0,300));
+              process.exit(1);
+            }
+
             const out = {
               hijri: `${day} ${month} ${year}`,
               updated_at_utc: new Date().toISOString()
             };
+
             fs.writeFileSync("hijri.json", JSON.stringify(out, null, 2) + "\n", "utf8");
           '
+
+          rm -f resp.json
 
       - name: Commit and push
         run: |
